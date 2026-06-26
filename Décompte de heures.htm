@@ -1,0 +1,848 @@
+
+<!-- saved from url=(0058)file:///Users/candicefabret/Downloads/time_tracker_v7.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.app { padding: 1.5rem 0; font-family: var(--font-sans); }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.stat-card { border-radius: var(--border-radius-lg); padding: 1.1rem 1.2rem; position: relative; overflow: hidden; }
+.stat-card.blue { background: #E6F1FB; } .stat-card.blue .stat-label { color: #185FA5; } .stat-card.blue .stat-value { color: #0C447C; }
+.stat-card.purple { background: #EEEDFE; } .stat-card.purple .stat-label { color: #534AB7; } .stat-card.purple .stat-value { color: #3C3489; }
+.stat-card.teal { background: #E1F5EE; } .stat-card.teal .stat-label { color: #0F6E56; } .stat-card.teal .stat-value { color: #085041; }
+.stat-card.green { background: #EAF3DE; } .stat-card.green .stat-label { color: #3B6D11; } .stat-card.green .stat-value { color: #27500A; }
+.stat-card.red { background: #FCEBEB; } .stat-card.red .stat-label { color: #A32D2D; } .stat-card.red .stat-value { color: #791F1F; }
+.stat-card.neutral { background: var(--color-background-secondary); } .stat-card.neutral .stat-label { color: var(--color-text-secondary); } .stat-card.neutral .stat-value { color: var(--color-text-primary); }
+.stat-label { font-size: 12px; font-weight: 500; margin-bottom: 6px; letter-spacing: 0.02em; }
+.stat-value { font-size: 26px; font-weight: 500; }
+.stat-icon { position: absolute; right: 12px; top: 12px; font-size: 18px; opacity: 0.35; }
+
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.1rem; }
+.card-icon { width: 32px; height: 32px; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.card-icon.indigo { background: #EEEDFE; color: #534AB7; }
+.card-icon.amber { background: #FAEEDA; color: #854F0B; }
+.card-icon.coral { background: #FAECE7; color: #993C1D; }
+.card-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; letter-spacing: 0.02em; }
+.form-group textarea { resize: vertical; min-height: 60px; padding: 8px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); font-family: var(--font-sans); font-size: 14px; }
+.btn-primary { background: linear-gradient(135deg, #534AB7, #7F77DD); color: #fff; border: none; border-radius: var(--border-radius-md); padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; margin-top: 6px; }
+.btn-primary:hover { opacity: 0.9; }
+
+.week-row { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 16px; padding: 12px 14px; border-radius: var(--border-radius-md); background: var(--color-background-secondary); border: 0.5px solid transparent; cursor: pointer; user-select: none; transition: background 0.12s; }
+.week-row:hover { background: var(--color-background-primary); border-color: var(--color-border-tertiary); }
+.week-row.active { background: var(--color-background-primary); border-color: #AFA9EC; }
+.week-label { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.week-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.week-worked { font-size: 14px; color: var(--color-text-secondary); }
+.week-over { font-size: 14px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.week-over.pos { background: #EAF3DE; color: #27500A; }
+.week-over.neg { background: #FCEBEB; color: #791F1F; }
+.week-over.zero { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.week-chevron { color: var(--color-text-secondary); font-size: 14px; transition: transform 0.2s; }
+.week-chevron.open { transform: rotate(180deg); }
+
+.week-detail { display: none; margin-top: 4px; margin-bottom: 4px; }
+.week-detail.open { display: block; }
+.week-day-row { display: grid; grid-template-columns: 100px 1fr auto auto; align-items: center; gap: 10px; padding: 8px 14px 8px 28px; font-size: 13px; border-left: 2px solid #AFA9EC; margin-left: 14px; }
+.week-day-name { color: var(--color-text-secondary); }
+.week-day-task { color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.week-day-hours { font-weight: 500; color: var(--color-text-primary); white-space: nowrap; }
+.week-day-delta { font-size: 12px; font-weight: 500; padding: 1px 7px; border-radius: 20px; white-space: nowrap; }
+.delta-pos { background: #EAF3DE; color: #27500A; }
+.delta-neg { background: #FCEBEB; color: #791F1F; }
+.delta-zero { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.no-week-entries { padding: 8px 14px 8px 28px; font-size: 13px; color: var(--color-text-secondary); border-left: 2px solid var(--color-border-tertiary); margin-left: 14px; }
+
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-row select { font-size: 13px; padding: 6px 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+
+.entries-list { display: flex; flex-direction: column; gap: 8px; }
+.entry-item { border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); overflow: hidden; background: var(--color-background-primary); }
+.entry-item.editing { border-color: #7F77DD; }
+.entry-stripe { display: grid; grid-template-columns: 4px 1fr; }
+.entry-bar.p0 { background: #AFA9EC; } .entry-bar.p1 { background: #5DCAA5; } .entry-bar.p2 { background: #EF9F27; } .entry-bar.p3 { background: #F0997B; } .entry-bar.p4 { background: #ED93B1; }
+.entry-content { padding: 11px 12px; }
+.entry-view { display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 12px; }
+.entry-date { font-size: 12px; color: var(--color-text-secondary); min-width: 82px; }
+.entry-task { font-size: 14px; color: var(--color-text-primary); }
+.entry-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.entry-hours { font-size: 14px; font-weight: 500; color: var(--color-text-primary); white-space: nowrap; }
+.proj-badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 20px; margin-top: 3px; font-weight: 500; }
+.pb0 { background: #EEEDFE; color: #3C3489; } .pb1 { background: #E1F5EE; color: #085041; } .pb2 { background: #FAEEDA; color: #633806; } .pb3 { background: #FAECE7; color: #4A1B0C; } .pb4 { background: #FBEAF0; color: #4B1528; }
+.btn-icon { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); padding: 5px; font-size: 17px; border-radius: var(--border-radius-md); }
+.btn-icon:hover { background: var(--color-background-secondary); }
+.btn-icon.del:hover { color: #E24B4A; }
+.btn-icon.edit-btn:hover { color: #534AB7; }
+.entry-edit { border-top: 0.5px solid var(--color-border-tertiary); padding: 12px; display: none; background: var(--color-background-secondary); }
+.entry-edit.open { display: block; }
+.edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.edit-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.edit-group { display: flex; flex-direction: column; gap: 4px; }
+.edit-group label { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+.edit-group textarea { font-size: 13px; padding: 6px 8px; min-height: 48px; resize: vertical; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: var(--font-sans); }
+.edit-actions { display: flex; gap: 8px; margin-top: 4px; }
+.btn-save { background: #534AB7; color: #fff; border: none; border-radius: var(--border-radius-md); padding: 7px 16px; font-size: 13px; font-weight: 500; cursor: pointer; flex: 1; }
+.btn-save:hover { background: #3C3489; }
+.btn-cancel { background: none; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 7px 16px; font-size: 13px; cursor: pointer; color: var(--color-text-primary); flex: 1; }
+.btn-cancel:hover { background: var(--color-background-primary); }
+.empty { text-align: center; padding: 2.5rem; color: var(--color-text-secondary); font-size: 14px; }
+.summary-bar { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.total-badge { background: #EEEDFE; color: #3C3489; font-size: 13px; font-weight: 500; padding: 3px 12px; border-radius: 20px; }
+.weeks-list { display: flex; flex-direction: column; gap: 6px; }
+</style>
+
+</head><body><div class="app">
+  <div class="stats-grid">
+    <div class="stat-card blue"><i class="ti ti-sun stat-icon" aria-hidden="true"></i><div class="stat-label">Aujourd'hui</div><div class="stat-value" id="stat-today">3h45</div></div>
+    <div class="stat-card purple"><i class="ti ti-calendar-week stat-icon" aria-hidden="true"></i><div class="stat-label">Cette semaine</div><div class="stat-value" id="stat-week">11h15</div></div>
+    <div class="stat-card teal"><i class="ti ti-calendar-month stat-icon" aria-hidden="true"></i><div class="stat-label">Ce mois</div><div class="stat-value" id="stat-month">49h15</div></div>
+    <div class="stat-card green" id="overtime-card"><i class="ti ti-clock-bolt stat-icon" aria-hidden="true"></i><div class="stat-label" id="overtime-label">Heures en trop</div><div class="stat-value" id="stat-overtime">+0h15</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon coral"><i class="ti ti-chart-bar stat-icon" aria-hidden="true" style="position:static;opacity:1;font-size:16px"></i></div>
+      <div class="card-title">Solde par semaine</div>
+    </div>
+    <div class="weeks-list" id="weeks-list"><div>
+      <div class="week-row" onclick="toggleWeek(&#39;2026-06-08&#39;)">
+        <div>
+          <div class="week-label">Sem. du 08 juin</div>
+          <div class="week-sub">08 juin – 14 juin · 2 jours travaillés</div>
+        </div>
+        <div class="week-worked">11h15 travaillées</div>
+        <div class="week-over neg">-2h45</div>
+        <i class="ti ti-chevron-down week-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="week-detail"><div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">lundi</div>
+          <div class="week-day-task">—</div>
+          <div class="week-day-hours">7h30</div>
+          <span class="week-day-delta delta-pos">+0h30</span>
+        </div><div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">mardi</div>
+          <div class="week-day-task">—</div>
+          <div class="week-day-hours">3h45</div>
+          <span class="week-day-delta delta-neg">-3h15</span>
+        </div></div></div><div>
+      <div class="week-row" onclick="toggleWeek(&#39;2026-06-01&#39;)">
+        <div>
+          <div class="week-label">Sem. du 01 juin</div>
+          <div class="week-sub">01 juin – 07 juin · 5 jours travaillés</div>
+        </div>
+        <div class="week-worked">38h00 travaillées</div>
+        <div class="week-over pos">+3h00</div>
+        <i class="ti ti-chevron-down week-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="week-detail"><div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">lundi</div>
+          <div class="week-day-task">—</div>
+          <div class="week-day-hours">7h30</div>
+          <span class="week-day-delta delta-pos">+0h30</span>
+        </div><div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">mardi</div>
+          <div class="week-day-task">—</div>
+          <div class="week-day-hours">7h00</div>
+          <span class="week-day-delta delta-zero">+0h00</span>
+        </div><div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">mercredi</div>
+          <div class="week-day-task">—, Chez moi</div>
+          <div class="week-day-hours">9h30</div>
+          <span class="week-day-delta delta-pos">+2h30</span>
+        </div><div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">jeudi</div>
+          <div class="week-day-task">—</div>
+          <div class="week-day-hours">7h30</div>
+          <span class="week-day-delta delta-pos">+0h30</span>
+        </div><div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">vendredi</div>
+          <div class="week-day-task">—</div>
+          <div class="week-day-hours">6h30</div>
+          <span class="week-day-delta delta-neg">-0h30</span>
+        </div></div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon indigo"><i class="ti ti-plus" aria-hidden="true"></i></div>
+      <div class="card-title">Ajouter une entrée</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input type="date" id="inp-date"></div>
+      <div class="form-group"><label>Projet</label><input type="text" id="inp-project" placeholder="ex: Acme Corp"></div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group"><label>Début</label><input type="time" id="inp-start"></div>
+      <div class="form-group"><label>Fin</label><input type="time" id="inp-end"></div>
+      <div class="form-group"><label>Durée (h)</label><input type="number" id="inp-hours" min="0" max="24" step="0.25" placeholder="ou saisir"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px"><label>Tâche effectuée</label><textarea id="inp-task" placeholder="Décrivez la tâche..."></textarea></div>
+    <button class="btn-primary" onclick="addEntry()"><i class="ti ti-check" aria-hidden="true" style="margin-right:6px"></i>Ajouter l'entrée</button>
+  </div>
+
+  <div class="card">
+    <div class="section-header">
+      <div class="card-header" style="margin-bottom:0">
+        <div class="card-icon amber"><i class="ti ti-list" aria-hidden="true"></i></div>
+        <div class="card-title">Historique</div>
+      </div>
+      <div class="filter-row">
+        <select id="filter-project" onchange="render()"><option value="">Tous les projets</option><option value="NESIVA">NESIVA</option></select>
+        <select id="filter-period" onchange="render()">
+          <option value="all">Toute la période</option>
+          <option value="today">Aujourd'hui</option>
+          <option value="week">Cette semaine</option>
+          <option value="month">Ce mois</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:1rem" id="entries-list"><div class="summary-bar"><span>14 entrées</span><span class="total-badge">49h15 total</span></div><div class="entries-list"><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">mar. 09 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>09:00 – 12:45</div></div>
+            <div class="entry-hours">3h45</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781027684707)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781027684707)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781027684707" value="2026-06-09"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781027684707" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781027684707" value="09:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781027684707" value="12:45"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781027684707" min="0" max="24" step="0.25" value="3.75"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781027684707"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781027684707)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781027684707)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">lun. 08 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>12:30 – 17:00</div></div>
+            <div class="entry-hours">4h30</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781027625702)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781027625702)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781027625702" value="2026-06-08"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781027625702" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781027625702" value="12:30"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781027625702" value="17:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781027625702" min="0" max="24" step="0.25" value="4.5"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781027625702"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781027625702)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781027625702)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">lun. 08 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>09:00 – 12:00</div></div>
+            <div class="entry-hours">3h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781027609288)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781027609288)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781027609288" value="2026-06-08"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781027609288" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781027609288" value="09:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781027609288" value="12:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781027609288" min="0" max="24" step="0.25" value="3"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781027609288"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781027609288)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781027609288)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">ven. 05 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>13:30 – 16:30</div></div>
+            <div class="entry-hours">3h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781027416981)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781027416981)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781027416981" value="2026-06-05"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781027416981" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781027416981" value="13:30"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781027416981" value="16:30"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781027416981" min="0" max="24" step="0.25" value="3"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781027416981"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781027416981)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781027416981)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">ven. 05 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>09:00 – 12:30</div></div>
+            <div class="entry-hours">3h30</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781027073292)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781027073292)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781027073292" value="2026-06-05"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781027073292" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781027073292" value="09:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781027073292" value="12:30"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781027073292" min="0" max="24" step="0.25" value="3.5"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781027073292"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781027073292)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781027073292)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">jeu. 04 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>13:00 – 17:00</div></div>
+            <div class="entry-hours">4h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019950341)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019950341)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019950341" value="2026-06-04"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019950341" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019950341" value="13:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019950341" value="17:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019950341" min="0" max="24" step="0.25" value="4"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019950341"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019950341)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019950341)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">jeu. 04 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>09:00 – 12:30</div></div>
+            <div class="entry-hours">3h30</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019931791)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019931791)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019931791" value="2026-06-04"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019931791" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019931791" value="09:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019931791" value="12:30"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019931791" min="0" max="24" step="0.25" value="3.5"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019931791"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019931791)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019931791)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">mer. 03 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">Chez moi</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>19:00 – 20:30</div></div>
+            <div class="entry-hours">1h30</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019905340)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019905340)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019905340" value="2026-06-03"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019905340" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019905340" value="19:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019905340" value="20:30"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019905340" min="0" max="24" step="0.25" value="1.5"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019905340">Chez moi</textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019905340)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019905340)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">mer. 03 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>13:00 – 18:00</div></div>
+            <div class="entry-hours">5h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019872340)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019872340)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019872340" value="2026-06-03"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019872340" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019872340" value="13:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019872340" value="18:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019872340" min="0" max="24" step="0.25" value="5"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019872340"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019872340)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019872340)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">mer. 03 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>09:00 – 12:00</div></div>
+            <div class="entry-hours">3h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019832343)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019832343)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019832343" value="2026-06-03"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019832343" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019832343" value="09:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019832343" value="12:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019832343" min="0" max="24" step="0.25" value="3"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019832343"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019832343)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019832343)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">mar. 02 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>13:00 – 17:00</div></div>
+            <div class="entry-hours">4h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019378228)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019378228)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019378228" value="2026-06-02"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019378228" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019378228" value="13:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019378228" value="17:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019378228" min="0" max="24" step="0.25" value="4"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019378228"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019378228)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019378228)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">mar. 02 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>09:00 – 12:00</div></div>
+            <div class="entry-hours">3h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019360296)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019360296)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019360296" value="2026-06-02"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019360296" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019360296" value="09:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019360296" value="12:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019360296" min="0" max="24" step="0.25" value="3"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019360296"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019360296)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019360296)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">lun. 01 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>13:00 – 17:00</div></div>
+            <div class="entry-hours">4h00</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019335881)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019335881)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019335881" value="2026-06-01"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019335881" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019335881" value="13:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019335881" value="17:00"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019335881" min="0" max="24" step="0.25" value="4"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019335881"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019335881)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019335881)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><div class="entry-item">
+      <div class="entry-stripe">
+        <div class="entry-bar p0"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">lun. 01 juin</div><span class="proj-badge pb0">NESIVA</span></div>
+            <div><div class="entry-task">—</div><div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>09:00 – 12:30</div></div>
+            <div class="entry-hours">3h30</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(1781019308586)" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(1781019308586)" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-1781019308586" value="2026-06-01"></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-1781019308586" value="NESIVA" placeholder="Projet"></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-1781019308586" value="09:00"></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-1781019308586" value="12:30"></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-1781019308586" min="0" max="24" step="0.25" value="3.5"></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-1781019308586"></textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(1781019308586)"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(1781019308586)">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div></div>
+  </div>
+</div>
+
+<script>
+let entries = JSON.parse(localStorage.getItem('time_entries_v3') || '[]');
+let openEditId = null;
+let openWeekId = null;
+const $ = id => document.getElementById(id);
+const DAILY = 7;
+const PROJ_COLORS = ['p0','p1','p2','p3','p4'];
+const BADGE_COLORS = ['pb0','pb1','pb2','pb3','pb4'];
+let projColorMap = {}, projColorIdx = 0;
+
+function getProjColor(p) { if(!p) return 'p0'; if(!projColorMap[p]){projColorMap[p]=PROJ_COLORS[projColorIdx%5];projColorIdx++;} return projColorMap[p]; }
+function getBadgeColor(p) { if(!p) return 'pb0'; return BADGE_COLORS[PROJ_COLORS.indexOf(getProjColor(p))]; }
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function fmtH(h, showSign=false) {
+  const neg = h < 0; h = Math.abs(h);
+  const hrs = Math.floor(h), mins = Math.round((h-hrs)*60);
+  const sign = showSign ? (neg?'-':'+') : (neg?'-':'');
+  return `${sign}${hrs}h${mins.toString().padStart(2,'0')}`;
+}
+function save() { try{localStorage.setItem('time_entries_v3',JSON.stringify(entries));}catch(e){} }
+function calcHoursFromRange(s,e){if(!s||!e)return null;const[sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);const h=(eh*60+em-sh*60-sm)/60;return h>0?h:null;}
+
+function getWeekBounds() {
+  const now=new Date(),day=now.getDay(),diff=day===0?-6:1-day;
+  const mon=new Date(now);mon.setDate(now.getDate()+diff);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  return[mon.toISOString().split('T')[0],sun.toISOString().split('T')[0]];
+}
+function getMonthBounds() {
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  return[new Date(y,m,1).toISOString().split('T')[0],new Date(y,m+1,0).toISOString().split('T')[0]];
+}
+
+function getMondayOf(dateStr) {
+  const d = new Date(dateStr+'T12:00:00');
+  const day = d.getDay(), diff = day===0?-6:1-day;
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().split('T')[0];
+}
+
+function getAllWeeks() {
+  if (!entries.length) return [];
+  const mondays = [...new Set(entries.map(e => getMondayOf(e.date)))].sort().reverse();
+  return mondays.map(mon => {
+    const sunD = new Date(mon+'T12:00:00'); sunD.setDate(sunD.getDate()+6);
+    const sun = sunD.toISOString().split('T')[0];
+    const weekEntries = entries.filter(e => e.date >= mon && e.date <= sun);
+    const byDay = {};
+    weekEntries.forEach(e => { byDay[e.date] = (byDay[e.date]||[]).concat(e); });
+    const worked = weekEntries.reduce((s,e)=>s+e.hours,0);
+    const days = Object.keys(byDay).length;
+    const expected = days * DAILY;
+    const overtime = worked - expected;
+    return { mon, sun, worked, days, overtime, byDay };
+  });
+}
+
+function computeOvertime() {
+  const [mS,mE]=getMonthBounds();
+  const byDay={};
+  entries.filter(e=>e.date>=mS&&e.date<=mE).forEach(e=>{byDay[e.date]=(byDay[e.date]||0)+e.hours;});
+  return Object.values(byDay).reduce((s,h)=>s+(h-DAILY),0);
+}
+
+function computeStats() {
+  const today=todayStr(),[wS,wE]=getWeekBounds(),[mS,mE]=getMonthBounds();
+  let d=0,w=0,mo=0;
+  entries.forEach(e=>{if(e.date===today)d+=e.hours;if(e.date>=wS&&e.date<=wE)w+=e.hours;if(e.date>=mS&&e.date<=mE)mo+=e.hours;});
+  $('stat-today').textContent=fmtH(d);$('stat-week').textContent=fmtH(w);$('stat-month').textContent=fmtH(mo);
+  const ot=computeOvertime();
+  const card=$('overtime-card');
+  $('stat-overtime').textContent=fmtH(ot,true);
+  if(ot>0){card.className='stat-card green';$('overtime-label').textContent='Heures en trop';}
+  else if(ot<0){card.className='stat-card red';$('overtime-label').textContent='Heures manquantes';}
+  else{card.className='stat-card neutral';$('overtime-label').textContent='Heures en trop';}
+}
+
+function renderWeeks() {
+  const weeks = getAllWeeks();
+  const container = $('weeks-list');
+  if (!weeks.length) { container.innerHTML='<div class="empty" style="padding:1rem"><i class="ti ti-calendar-off" style="font-size:22px;display:block;margin-bottom:6px;opacity:0.35" aria-hidden="true"></i>Aucune donnée.</div>'; return; }
+
+  let html = '';
+  weeks.forEach(w => {
+    const monD = new Date(w.mon+'T12:00:00'), sunD = new Date(w.sun+'T12:00:00');
+    const fmt = d => d.toLocaleDateString('fr-CA',{day:'2-digit',month:'short'});
+    const overCls = w.overtime > 0 ? 'pos' : w.overtime < 0 ? 'neg' : 'zero';
+    const isOpen = openWeekId === w.mon;
+
+    html += `<div>
+      <div class="week-row${isOpen?' active':''}" onclick="toggleWeek('${w.mon}')">
+        <div>
+          <div class="week-label">Sem. du ${fmt(monD)}</div>
+          <div class="week-sub">${fmt(monD)} – ${fmt(sunD)} · ${w.days} jour${w.days>1?'s':''} travaillé${w.days>1?'s':''}</div>
+        </div>
+        <div class="week-worked">${fmtH(w.worked)} travaillées</div>
+        <div class="week-over ${overCls}">${fmtH(w.overtime,true)}</div>
+        <i class="ti ti-chevron-down week-chevron${isOpen?' open':''}" aria-hidden="true"></i>
+      </div>
+      <div class="week-detail${isOpen?' open':''}">`;
+
+    const sortedDays = Object.keys(w.byDay).sort();
+    if (!sortedDays.length) {
+      html += `<div class="no-week-entries">Aucune entrée cette semaine.</div>`;
+    } else {
+      sortedDays.forEach(date => {
+        const dayEntries = w.byDay[date];
+        const dayTotal = dayEntries.reduce((s,e)=>s+e.hours,0);
+        const delta = dayTotal - DAILY;
+        const deltaCls = delta > 0 ? 'delta-pos' : delta < 0 ? 'delta-neg' : 'delta-zero';
+        const d = new Date(date+'T12:00:00');
+        const dayName = d.toLocaleDateString('fr-CA',{weekday:'long'});
+        const tasks = dayEntries.map(e=>e.task||'—').filter((v,i,a)=>a.indexOf(v)===i).join(', ');
+        html += `<div class="week-day-row">
+          <div class="week-day-name" style="text-transform:capitalize">${dayName}</div>
+          <div class="week-day-task">${tasks}</div>
+          <div class="week-day-hours">${fmtH(dayTotal)}</div>
+          <span class="week-day-delta ${deltaCls}">${fmtH(delta,true)}</span>
+        </div>`;
+      });
+    }
+    html += `</div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function updateProjectFilter(){const sel=$('filter-project'),cur=sel.value;const projs=[...new Set(entries.map(e=>e.project).filter(Boolean))].sort();sel.innerHTML='<option value="">Tous les projets</option>';projs.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;if(p===cur)o.selected=true;sel.appendChild(o);});}
+function toggleWeek(mon){openWeekId=openWeekId===mon?null:mon;renderWeeks();}
+function toggleEdit(id){openEditId=openEditId===id?null:id;renderEntries();}
+
+function saveEdit(id){
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  const date=document.getElementById(`edit-date-${id}`).value;
+  const project=document.getElementById(`edit-project-${id}`).value.trim();
+  const start=document.getElementById(`edit-start-${id}`).value;
+  const end=document.getElementById(`edit-end-${id}`).value;
+  const hoursRaw=parseFloat(document.getElementById(`edit-hours-${id}`).value);
+  const task=document.getElementById(`edit-task-${id}`).value.trim();
+  if(!date){alert('Date requise.');return;}
+  let hours=0,timeRange='';
+  const fr=calcHoursFromRange(start,end);
+  if(fr!==null){hours=fr;timeRange=`${start} – ${end}`;}
+  else if(!isNaN(hoursRaw)&&hoursRaw>0){hours=hoursRaw;}
+  else{alert('Saisir une plage horaire ou une durée valide.');return;}
+  e.date=date;e.project=project;e.task=task;e.hours=hours;e.timeRange=timeRange;
+  save();openEditId=null;render();
+}
+
+function deleteEntry(id){entries=entries.filter(e=>e.id!==id);save();render();}
+
+function addEntry(){
+  const date=$('inp-date').value,start=$('inp-start').value,end=$('inp-end').value;
+  const hi=parseFloat($('inp-hours').value),task=$('inp-task').value.trim(),project=$('inp-project').value.trim();
+  if(!date){alert('Veuillez sélectionner une date.');return;}
+  let hours=0,timeRange='';
+  const fr=calcHoursFromRange(start,end);
+  if(fr!==null){hours=fr;timeRange=`${start} – ${end}`;}
+  else if(!isNaN(hi)&&hi>0){hours=hi;}
+  else{alert('Veuillez saisir une plage horaire ou une durée.');return;}
+  entries.push({id:Date.now(),date,project,task,hours,timeRange});
+  save();
+  $('inp-date').value=todayStr();$('inp-start').value='';$('inp-end').value='';$('inp-hours').value='';$('inp-task').value='';$('inp-project').value='';
+  render();
+}
+
+function renderEntries(){
+  projColorIdx=0;projColorMap={};
+  updateProjectFilter();
+  const projF=$('filter-project').value,periodF=$('filter-period').value;
+  const today=todayStr(),[wS,wE]=getWeekBounds(),[mS,mE]=getMonthBounds();
+  let filtered=entries.filter(e=>{
+    if(projF&&e.project!==projF)return false;
+    if(periodF==='today'&&e.date!==today)return false;
+    if(periodF==='week'&&!(e.date>=wS&&e.date<=wE))return false;
+    if(periodF==='month'&&!(e.date>=mS&&e.date<=mE))return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+
+  const list=$('entries-list');
+  if(!filtered.length){list.innerHTML='<div class="empty"><i class="ti ti-mood-empty" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.4" aria-hidden="true"></i>Aucune entrée pour cette sélection.</div>';return;}
+
+  const totalH=filtered.reduce((s,e)=>s+e.hours,0);
+  let html=`<div class="summary-bar"><span>${filtered.length} entrée${filtered.length>1?'s':''}</span><span class="total-badge">${fmtH(totalH)} total</span></div><div class="entries-list">`;
+
+  filtered.forEach(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    const dayName=d.toLocaleDateString('fr-CA',{weekday:'short'});
+    const dateLabel=d.toLocaleDateString('fr-CA',{day:'2-digit',month:'short'});
+    const isEditing=openEditId===e.id;
+    const editStart=e.timeRange?e.timeRange.split(' – ')[0]:'';
+    const editEnd=e.timeRange?e.timeRange.split(' – ')[1]:'';
+    const bc=getProjColor(e.project);
+    const badgeCls=getBadgeColor(e.project);
+    html+=`<div class="entry-item${isEditing?' editing':''}">
+      <div class="entry-stripe">
+        <div class="entry-bar ${bc}"></div>
+        <div class="entry-content">
+          <div class="entry-view">
+            <div class="entry-date"><div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">${dayName} ${dateLabel}</div>${e.project?`<span class="proj-badge ${badgeCls}">${e.project}</span>`:''}</div>
+            <div><div class="entry-task">${e.task||'—'}</div>${e.timeRange?`<div class="entry-sub"><i class="ti ti-clock" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>${e.timeRange}</div>`:''}</div>
+            <div class="entry-hours">${fmtH(e.hours)}</div>
+            <button class="btn-icon edit-btn" onclick="toggleEdit(${e.id})" aria-label="Modifier"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="btn-icon del" onclick="deleteEntry(${e.id})" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+          <div class="entry-edit${isEditing?' open':''}">
+            <div class="edit-row">
+              <div class="edit-group"><label>Date</label><input type="date" id="edit-date-${e.id}" value="${e.date}" /></div>
+              <div class="edit-group"><label>Projet</label><input type="text" id="edit-project-${e.id}" value="${e.project||''}" placeholder="Projet" /></div>
+            </div>
+            <div class="edit-row-3">
+              <div class="edit-group"><label>Début</label><input type="time" id="edit-start-${e.id}" value="${editStart}" /></div>
+              <div class="edit-group"><label>Fin</label><input type="time" id="edit-end-${e.id}" value="${editEnd}" /></div>
+              <div class="edit-group"><label>Durée (h)</label><input type="number" id="edit-hours-${e.id}" min="0" max="24" step="0.25" value="${e.hours}" /></div>
+            </div>
+            <div class="edit-group" style="margin-bottom:10px"><label>Tâche</label><textarea id="edit-task-${e.id}">${e.task||''}</textarea></div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit(${e.id})"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Enregistrer</button>
+              <button class="btn-cancel" onclick="toggleEdit(${e.id})">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  list.innerHTML=html;
+}
+
+function render(){computeStats();renderWeeks();renderEntries();}
+
+$('inp-date').value=todayStr();
+$('inp-start').addEventListener('input',()=>{const h=calcHoursFromRange($('inp-start').value,$('inp-end').value);if(h)$('inp-hours').value=h.toFixed(2);});
+$('inp-end').addEventListener('input',()=>{const h=calcHoursFromRange($('inp-start').value,$('inp-end').value);if(h)$('inp-hours').value=h.toFixed(2);});
+render();
+</script>
+</body></html>
